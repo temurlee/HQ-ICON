@@ -21,6 +21,7 @@ class Result extends Component {
       nextProps.resolution !== this.props.resolution ||
       nextProps.format !== this.props.format ||
       nextProps.t !== this.props.t ||
+      nextProps.country !== this.props.country ||
       nextState.base64 !== this.state.base64 ||
       nextState.loading !== this.state.loading ||
       nextState.failed !== this.state.failed ||
@@ -54,7 +55,7 @@ class Result extends Component {
   }
 
   render() {
-    const { data, t } = this.props;
+    const { data, t, country } = this.props;
     const { trackName, kind, primaryGenreName, artistName } = data;
     const { base64, loading, failed, showMaterials } = this.state;
     const platform = kind.startsWith("mac") ? "macOS" : "iOS";
@@ -104,6 +105,7 @@ class Result extends Component {
             base64={base64}
             downloadName={downloadName}
             t={t}
+            country={country}
             onClose={() => this.setState({ showMaterials: false })}
           />
         )}

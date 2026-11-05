@@ -134,6 +134,90 @@
   overflow-y: auto;
 }
 
+.material-featured {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.material-hero {
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--filter-bg);
+}
+
+.material-hero img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+}
+
+.material-subtitle {
+  margin: 1rem 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.material-topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.material-topic {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--filter-bg);
+}
+
+.material-topic-link {
+  display: block;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.material-topic img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.material-topic-title {
+  margin: 0.5rem 0.5rem 0;
+  overflow: hidden;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.material-topic-heading {
+  margin: 0.25rem 0.5rem 0;
+  overflow: hidden;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.material-topic-more {
+  margin: 0.5rem 0.5rem 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
+
+.material-topic .material-download {
+  margin-top: 0.5rem;
+}
+
 .material-group + .material-group {
   margin-top: 1.5rem;
 }
@@ -207,6 +291,11 @@
 
   .material-screenshots {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .material-topics {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 0.75rem;
   }
 }

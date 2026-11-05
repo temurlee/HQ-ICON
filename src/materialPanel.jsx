@@ -15,11 +15,33 @@ class MaterialPanel extends Component {
   constructor(props) {
     super(props);
     this.dialogRef = createRef();
-    this.state = { downloads: {} };
+    this.state = { downloads: {}, materials: null };
   }
 
   componentDidMount() {
     this.dialogRef.current?.showModal();
+    this.loadMaterials();
+  }
+
+  async loadMaterials() {
+    const { data, country } = this.props;
+    if (!data.trackId) return;
+
+    try {
+      const res = await fetch(
+        `./api/appstore-materials?id=${encodeURIComponent(data.trackId)}&country=${encodeURIComponent(country || "us")}`,
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const materials = await res.json();
+      this.setState({
+        materials: {
+          hero: materials?.hero || null,
+          topics: Array.isArray(materials?.topics) ? materials.topics : [],
+        },
+      });
+    } catch {
+      this.setState({ materials: null });
+    }
   }
 
   handleBackdropClick = (event) => {
@@ -28,7 +50,7 @@ class MaterialPanel extends Component {
     }
   };
 
-  downloadScreenshot = async (key, downloadUrl, filename) => {
+  downloadAsset = async (key, downloadUrl, filename) => {
     this.setState((prev) => ({
       downloads: {
         ...prev.downloads,
@@ -66,6 +88,9 @@ class MaterialPanel extends Component {
   render() {
     const { data, base64, downloadName, t } = this.props;
     const { trackName, artistName, kind, primaryGenreName } = data;
+    const { downloads, materials } = this.state;
+    const hero = materials?.hero || null;
+    const topics = materials?.topics || [];
     const platform = kind.startsWith("mac") ? "macOS" : "iOS";
     const groups = getScreenshotGroups(data);
     const appName = sanitizeName(trackName);
@@ -113,6 +138,103 @@ class MaterialPanel extends Component {
             </button>
           </div>
           <div className="material-body">
+            {(hero || topics.length > 0) && (
+              <section className="material-featured">
+                <h3 className="material-group-title">{t.featuredMaterials}</h3>
+                {hero && (
+                  <div className="material-hero">
+                    <img
+                      src={hero.previewUrl}
+                      alt={`${trackName} ${t.heroArtwork}`}
+                    />
+                    <button
+                      type="button"
+                      className="material-download"
+                      onClick={() =>
+                        this.downloadAsset(
+                          "hero",
+                          hero.downloadUrl,
+                          `${appName}-${t.heroArtwork}.${getExtension(hero.downloadUrl)}`,
+                        )
+                      }
+                      disabled={(downloads.hero || {}).loading}
+                    >
+                      {(downloads.hero || {}).failed
+                        ? t.downloadFailed
+                        : t.download}
+                    </button>
+                  </div>
+                )}
+                {topics.length > 0 && (
+                  <>
+                    <h4 className="material-subtitle">{t.relatedTopics}</h4>
+                    <div className="material-topics">
+                      {topics.map((topic, index) => {
+                        const key = `topic-${index}`;
+                        const download = downloads[key] || {};
+                        const content = (
+                          <>
+                            <img
+                              src={topic.previewUrl}
+                              alt={topic.title || t.relatedTopics}
+                              loading="lazy"
+                            />
+                            <div className="material-topic-title">
+                              {topic.title || t.relatedTopics}
+                            </div>
+                            {topic.heading && (
+                              <div className="material-topic-heading">
+                                {topic.heading}
+                              </div>
+                            )}
+                            {topic.url && (
+                              <div className="material-topic-more">
+                                {t.viewTopic}
+                              </div>
+                            )}
+                          </>
+                        );
+
+                        return (
+                          <div className="material-topic" key={key}>
+                            {topic.url ? (
+                              <a
+                                className="material-topic-link"
+                                href={topic.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {content}
+                              </a>
+                            ) : (
+                              <div className="material-topic-link">
+                                {content}
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              className="material-download"
+                              onClick={() =>
+                                this.downloadAsset(
+                                  key,
+                                  topic.downloadUrl,
+                                  `${appName}-${t.relatedTopics}-${index + 1}.${getExtension(topic.downloadUrl)}`,
+                                )
+                              }
+                              disabled={download.loading}
+                            >
+                              {download.failed
+                                ? t.downloadFailed
+                                : t.download}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </section>
+            )}
             {groups.length ? (
               groups.map((group) => (
                 <section className="material-group" key={group.platform}>
@@ -122,7 +244,7 @@ class MaterialPanel extends Component {
                   <div className="material-screenshots">
                     {group.screenshots.map((screenshot, index) => {
                       const key = `${group.platform}-${index}`;
-                      const download = this.state.downloads[key] || {};
+                      const download = downloads[key] || {};
                       const filename = `${appName}-${group.platform}-${index + 1}.${getExtension(screenshot.downloadUrl)}`;
                       return (
                         <div className="material-shot" key={key}>
@@ -135,7 +257,7 @@ class MaterialPanel extends Component {
                             type="button"
                             className="material-download"
                             onClick={() =>
-                              this.downloadScreenshot(
+                              this.downloadAsset(
                                 key,
                                 screenshot.downloadUrl,
                                 filename,
