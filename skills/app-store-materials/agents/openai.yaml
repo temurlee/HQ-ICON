@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Store Materials"
+  short_description: "Fetch App Store icons, screenshots, and featured artwork"
+  default_prompt: "Fetch App Store app icons, screenshots, and featured materials for an app name, link, or ID."
