@@ -33,6 +33,13 @@ const TRANSLATIONS = {
     proxyWarning: "可尝试切换国家/地区，或检查网络及代理设置",
     androidWarning: "检测到当前是Android设备，可使用",
     androidAppLink: "App版本",
+    materials: "素材",
+    downloadIcon: "下载图标",
+    screenshots: "截图",
+    download: "下载",
+    downloadFailed: "下载失败",
+    noScreenshots: "暂无官方截图",
+    close: "关闭",
   },
   en: {
     title: "HQ ICON",
@@ -56,6 +63,13 @@ const TRANSLATIONS = {
     proxyWarning: "Try another region or check your network and proxy settings",
     androidWarning: "Android device detected. You can use the",
     androidAppLink: "App version",
+    materials: "Materials",
+    downloadIcon: "Download icon",
+    screenshots: "Screenshots",
+    download: "Download",
+    downloadFailed: "Download failed",
+    noScreenshots: "No official screenshots available",
+    close: "Close",
   },
 };
 
@@ -525,6 +539,7 @@ class App extends Component {
                 cut={cut}
                 resolution={resolution}
                 format={format}
+                t={t}
               />
             ))
           ) : hasSearched ? (

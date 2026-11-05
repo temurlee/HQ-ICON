@@ -1,11 +1,17 @@
 import { Component } from "react";
 import drawOutline from "./drawOutline.jsx";
+import MaterialPanel from "./materialPanel.jsx";
 import "./result.css";
 
 class Result extends Component {
   constructor(props) {
     super(props);
-    this.state = { base64: "", loading: true, failed: false };
+    this.state = {
+      base64: "",
+      loading: true,
+      failed: false,
+      showMaterials: false,
+    };
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -14,9 +20,11 @@ class Result extends Component {
       nextProps.cut !== this.props.cut ||
       nextProps.resolution !== this.props.resolution ||
       nextProps.format !== this.props.format ||
+      nextProps.t !== this.props.t ||
       nextState.base64 !== this.state.base64 ||
       nextState.loading !== this.state.loading ||
-      nextState.failed !== this.state.failed
+      nextState.failed !== this.state.failed ||
+      nextState.showMaterials !== this.state.showMaterials
     );
   }
 
@@ -46,9 +54,9 @@ class Result extends Component {
   }
 
   render() {
-    const { data } = this.props;
+    const { data, t } = this.props;
     const { trackName, kind, primaryGenreName, artistName } = data;
-    const { base64, loading, failed } = this.state;
+    const { base64, loading, failed, showMaterials } = this.state;
     const platform = kind.startsWith("mac") ? "macOS" : "iOS";
     const hasIcon = !loading && !failed && base64;
 
@@ -57,36 +65,49 @@ class Result extends Component {
       : undefined;
 
     return (
-      <a
-        className={`result ${loading ? "skeleton" : ""}`}
-        href={hasIcon ? base64 : undefined}
-        download={downloadName}
-      >
-        <div className="icon-wrapper">
-          {hasIcon ? (
-            <img className="icon" src={base64} alt={trackName} />
-          ) : failed ? (
-            <div className="icon-failed" />
-          ) : null}
-        </div>
-        <div className="info">
-          {loading ? (
-            <>
-              <div className="skeleton-line skeleton-title" />
-              <div className="skeleton-line skeleton-artist" />
-              <div className="skeleton-line skeleton-platform" />
-            </>
-          ) : (
-            <>
-              <div className="icon-trackName">{trackName}</div>
-              <div className="icon-artistName">{artistName}</div>
-              <div className="icon-platform">
-                {platform} - {primaryGenreName}
-              </div>
-            </>
-          )}
-        </div>
-      </a>
+      <>
+        <button
+          type="button"
+          className={`result ${loading ? "skeleton" : ""}`}
+          onClick={() => this.setState({ showMaterials: true })}
+          disabled={loading}
+          aria-haspopup="dialog"
+        >
+          <div className="icon-wrapper">
+            {hasIcon ? (
+              <img className="icon" src={base64} alt={trackName} />
+            ) : failed ? (
+              <div className="icon-failed" />
+            ) : null}
+          </div>
+          <div className="info">
+            {loading ? (
+              <>
+                <div className="skeleton-line skeleton-title" />
+                <div className="skeleton-line skeleton-artist" />
+                <div className="skeleton-line skeleton-platform" />
+              </>
+            ) : (
+              <>
+                <div className="icon-trackName">{trackName}</div>
+                <div className="icon-artistName">{artistName}</div>
+                <div className="icon-platform">
+                  {platform} - {primaryGenreName}
+                </div>
+              </>
+            )}
+          </div>
+        </button>
+        {showMaterials && (
+          <MaterialPanel
+            data={data}
+            base64={base64}
+            downloadName={downloadName}
+            t={t}
+            onClose={() => this.setState({ showMaterials: false })}
+          />
+        )}
+      </>
     );
   }
 }

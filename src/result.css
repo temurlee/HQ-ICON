@@ -60,10 +60,16 @@
   border-radius: 4px;
 }
 
-a.result {
-  text-decoration: none;
+button.result {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: none;
+  font: inherit;
   color: inherit;
-  display: block;
+  text-align: left;
+  cursor: pointer;
 }
 
 .icon-failed {

@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { lookupApp, parseAppStoreInput, searchApp } from "../src/searchApp.js";
+import {
+  getScreenshotGroups,
+  lookupApp,
+  parseAppStoreInput,
+  searchApp,
+} from "../src/searchApp.js";
 
 test("parses App Store links and IDs without changing ordinary searches", () => {
   assert.deepEqual(
@@ -54,4 +59,66 @@ test("encodes search terms as query parameters", async (t) => {
   assert.equal(requestedUrl.pathname, "/search");
   assert.equal(requestedUrl.searchParams.get("term"), "Siri & Maps");
   assert.equal(requestedUrl.searchParams.get("country"), "sg");
+});
+
+test("groups iPhone and iPad screenshots in platform order", () => {
+  const groups = getScreenshotGroups({
+    screenshotUrls: ["https://example.com/phone/1290x2796bb.jpg"],
+    ipadScreenshotUrls: ["https://example.com/ipad/2732x2048bb.jpg"],
+  });
+
+  assert.deepEqual(
+    groups.map((group) => group.platform),
+    ["iPhone", "iPad"],
+  );
+  assert.equal(
+    groups[0].screenshots[0].downloadUrl,
+    "https://example.com/phone/4096x4096bb.jpg",
+  );
+  assert.equal(
+    groups[1].screenshots[0].downloadUrl,
+    "https://example.com/ipad/4096x4096bb.jpg",
+  );
+});
+
+test("ignores missing screenshot fields and empty arrays", () => {
+  assert.deepEqual(getScreenshotGroups({}), []);
+  assert.deepEqual(
+    getScreenshotGroups({
+      screenshotUrls: [],
+      ipadScreenshotUrls: undefined,
+      appletvScreenshotUrls: ["https://example.com/tv/1920x1080bb.png"],
+    }).map((group) => group.platform),
+    ["Apple TV"],
+  );
+});
+
+test("rewrites jpg and png screenshot URLs to full-size images", () => {
+  const [group] = getScreenshotGroups({
+    screenshotUrls: [
+      "https://example.com/a/392x696bb.jpg",
+      "https://example.com/b/392x696bb.png",
+    ],
+  });
+
+  assert.deepEqual(
+    group.screenshots.map((screenshot) => screenshot.downloadUrl),
+    [
+      "https://example.com/a/4096x4096bb.jpg",
+      "https://example.com/b/4096x4096bb.png",
+    ],
+  );
+});
+
+test("keeps non-standard screenshot URLs unchanged", () => {
+  const urls = [
+    "https://example.com/image.jpg",
+    "https://example.com/392x696bb.jpg?x=1",
+  ];
+  const [group] = getScreenshotGroups({ screenshotUrls: urls });
+
+  assert.deepEqual(
+    group.screenshots.map((screenshot) => screenshot.downloadUrl),
+    urls,
+  );
 });

@@ -34,6 +34,26 @@ export function searchApp(term, country, entity, limit) {
   return fetchAppStore("search", { term, country, entity, limit });
 }
 
+const SCREENSHOT_SOURCES = [
+  { platform: "iPhone", key: "screenshotUrls" },
+  { platform: "iPad", key: "ipadScreenshotUrls" },
+  { platform: "Apple TV", key: "appletvScreenshotUrls" },
+];
+
+export function getScreenshotGroups(app) {
+  return SCREENSHOT_SOURCES.flatMap(({ platform, key }) => {
+    const urls = Array.isArray(app[key]) ? app[key] : [];
+    const screenshots = urls.map((previewUrl) => ({
+      previewUrl,
+      downloadUrl: previewUrl.replace(
+        /\/\d+x\d+bb\.([a-z0-9]+)$/i,
+        "/4096x4096bb.$1",
+      ),
+    }));
+    return screenshots.length ? [{ platform, screenshots }] : [];
+  });
+}
+
 export async function lookupApp(id, country) {
   const data = await fetchAppStore("lookup", { id, country });
   const results = data.results.filter(
