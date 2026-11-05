@@ -34,6 +34,10 @@ const TRANSLATIONS = {
     androidWarning: "检测到当前是Android设备，可使用",
     androidAppLink: "App版本",
     materials: "素材",
+    featuredMaterials: "专题物料",
+    heroArtwork: "宣传图",
+    relatedTopics: "相关专题",
+    viewTopic: "查看专题",
     downloadIcon: "下载图标",
     screenshots: "截图",
     download: "下载",
@@ -64,6 +68,10 @@ const TRANSLATIONS = {
     androidWarning: "Android device detected. You can use the",
     androidAppLink: "App version",
     materials: "Materials",
+    featuredMaterials: "Featured materials",
+    heroArtwork: "Promotional artwork",
+    relatedTopics: "Related features",
+    viewTopic: "View feature",
     downloadIcon: "Download icon",
     screenshots: "Screenshots",
     download: "Download",
@@ -540,6 +548,7 @@ class App extends Component {
                 resolution={resolution}
                 format={format}
                 t={t}
+                country={this.state.country}
               />
             ))
           ) : hasSearched ? (
